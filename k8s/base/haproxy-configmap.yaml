@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-config
+data:
+  haproxy.cfg: |
+    global
+      log stdout format raw local0
+      maxconn 2048
+
+    defaults
+      log global
+      mode http
+      option httplog
+      option dontlognull
+      timeout connect 5000
+      timeout client 50000
+      timeout server 50000
+
+    frontend http_front
+      bind *:80
+      default_backend http_back
+
+    backend http_back
+      balance roundrobin
+      # The following server is the Kubernetes Service for Nginx
+      server nginx1 nginx-service:80 check
