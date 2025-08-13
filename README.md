@@ -46,7 +46,7 @@ To get this running on your own, you'll need a running Kubernetes cluster (like 
 
 1.  **Clone the repository:**
     ```bash
-    git clone <YOUR_REPO_URL>
+    git clone <REPO_URL>
     cd kube-ha-nginx
     ```
 
@@ -89,27 +89,11 @@ On every `git push` to the `main` branch, the pipeline automatically performs tw
 1.  **Build & Push Docker Image:**
     -   Builds a new Docker image from the `app/` directory.
     -   Tags the image with the unique Git commit SHA for precise versioning.
-    -   Logs into the GitHub Container Registry (GHCR).
-    -   Pushes the newly tagged image to GHCR.
+    -   Logs into the GitHub Container Registry (GHCR) and pushes the new image.
 
 2.  **Deploy to Kubernetes:**
     -   Waits for the `build-and-push` job to succeed.
-    -   Sets up `kubectl` and `kustomize`.
-    -   Connects to your Kubernetes cluster using a stored `kubeconfig`.
-    -   Uses `kustomize` to update the `app-deployment` manifest to use the new image tag.
-    -   Applies all the updated manifests to your cluster.
+    -   Connects to a Kubernetes cluster.
+    -   Uses `kustomize` to update the `app-deployment` manifest to use the new image tag and applies the changes.
 
-### 🔒 Required Secrets
-
-To allow the CI/CD pipeline to access your container registry and Kubernetes cluster, you must configure the following secrets in your GitHub repository under `Settings > Secrets and variables > Actions`:
-
--   `DOCKER_USERNAME`: Your GitHub username.
--   `GH_PAT`: A GitHub Personal Access Token (PAT) with `write:packages` scope to allow pushing container images to GHCR.
--   `KUBE_CONFIG`: The content of your `~/.kube/config` file, encoded in Base64.
-
-You can generate the Base64 string with this command:
-```bash
-cat ~/.kube/config | base64 -w0
-```
-
-**Security Warning:** Your `KUBE_CONFIG` file contains credentials to your cluster. Treat it like a password and never commit it directly to your repository.
+The pipeline relies on GitHub Actions secrets to securely store credentials for the container registry and the Kubernetes cluster. For more details, refer to the workflow file.
